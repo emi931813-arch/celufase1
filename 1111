@@ -1,0 +1,83 @@
+### A) Archivo Principal (App.tsx)
+
+```typescript
+import { useState } from "react";
+import { Button, Input, Card, Page, Text, Box } from "@wix/react";
+import { createUser, getUser, updateUser } from "@wix/data";
+import { sendEmail } from "@wix/email";
+
+export function App() {
+  const [user, setUser] = useState(null);
+  const [page, setPage] = useState("home");
+
+  return (
+    <Page>
+      {page === "home" && <Home setPage={setPage} />}
+      {page === "login" && <Login setPage={setPage} setUser={setUser} />}
+      {page === "register" && <Register setPage={setPage} />}
+      {page === "dashboard" && <Dashboard user={user} setPage={setPage} setUser={setUser} />}
+      {page === "cotizacion" && <Cotizacion user={user} setPage={setPage} />}
+      {page === "admin" && <AdminPanel />}
+    </Page>
+  );
+}
+
+// Página Home
+function Home({ setPage }: { setPage: (p: string) => void }) {
+  return (
+    <Box style={{ minHeight: "100vh", background: "#f8f9fa", padding: "40px 20px" }}>
+      <Box style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
+        <Text style={{ fontSize: "48px", fontWeight: "bold", color: "#1a1a2e" }}>
+          🛡️ CellShield
+        </Text>
+        <Text style={{ fontSize: "20px", color: "#666", marginTop: "20px" }}>
+          Protege tu celular desde $9/mes
+        </Text>
+        
+        <Box style={{ display: "flex", gap: "20px", justifyContent: "center", marginTop: "40px" }}>
+          <Button onClick={() => setPage("cotizacion")} style={{ padding: "15px 40px", fontSize: "18px", background: "#4f46e5", color: "white", border: "none", borderRadius: "10px", cursor: "pointer" }}>
+            🚀 Cotizar Ahora
+          </Button>
+          <Button onClick={() => setPage("login")} style={{ padding: "15px 40px", fontSize: "18px", background: "white", color: "#4f46e5", border: "2px solid #4f46e5", borderRadius: "10px", cursor: "pointer" }}>
+            🔐 Iniciar Sesión
+          </Button>
+        </Box>
+
+        <Box style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "30px", marginTop: "60px" }}>
+          <Card style={{ padding: "30px", borderRadius: "15px", background: "white" }}>
+            <Text style={{ fontSize: "40px" }}>📱</Text>
+            <Text style={{ fontSize: "20px", fontWeight: "bold", marginTop: "10px" }}>Cubre Robo</Text>
+            <Text style={{ color: "#666" }}>Protección completa contra hurto</Text>
+          </Card>
+          <Card style={{ padding: "30px", borderRadius: "15px", background: "white" }}>
+            <Text style={{ fontSize: "40px" }}>💔</Text>
+            <Text style={{ fontSize: "20px", fontWeight: "bold", marginTop: "10px" }}>Cubre Rotura</Text>
+            <Text style={{ color: "#666" }}>Pantalla y daños accidentales</Text>
+          </Card>
+          <Card style={{ padding: "30px", borderRadius: "15px", background: "white" }}>
+            <Text style={{ fontSize: "40px" }}>⚡</Text>
+            <Text style={{ fontSize: "20px", fontWeight: "bold", marginTop: "10px" }}>Cotización Instantánea</Text>
+            <Text style={{ color: "#666" }}>En segundos conoces el precio</Text>
+          </Card>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+// Página Login
+function Login({ setPage, setUser }: { setPage: (p: string) => void; setUser: (u: any) => void }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const foundUser = await getUser(email);
+      if (foundUser && foundUser.password === password) {
+        setUser(foundUser);
+        setPage("dashboard");
+      } else {
+        setError("Email o contraseña incorrectos");
+      }
+    } catch (e)
